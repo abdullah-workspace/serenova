@@ -1,0 +1,15 @@
+import { Router } from 'express';
+import health from './health.routes.js';
+import departments from './departments.routes.js';
+import doctors from './doctors.routes.js';
+import booking from './booking.routes.js';
+import availability from './availability.routes.js';
+import contact from './contact.routes.js';
+const router = Router();
+router.use('/health', health);
+router.use('/departments', departments);
+router.use('/doctors', doctors);
+router.use('/appointments', booking);
+router.use('/availability', availability);
+router.use('/contact', contact);
+export default router;

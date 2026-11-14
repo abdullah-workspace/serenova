@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import * as controller from '../controllers/doctors.controller.js';
+import { validate } from '../middleware/validate.js';
+import { doctorIdParams, slotsQuery } from '../validators/doctors.js';
+import { listSlots } from '../controllers/booking.controller.js';
+const router = Router();
+router.get('/', asyncHandler(controller.list));
+router.get('/:id/slots', validate(doctorIdParams, 'params'), validate(slotsQuery, 'query'), listSlots);
+router.get('/:id', asyncHandler(controller.get));
+export default router;

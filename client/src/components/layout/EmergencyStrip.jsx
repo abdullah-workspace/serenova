@@ -1,0 +1,1 @@
+export default function EmergencyStrip() { return <div className="topbar"><div className="container topbar-inner"><span>Emergency, 24 hours: <a className="emergency" href="tel:+924211100911">(042) 111-000-911</a></span><span className="topbar-hours">Clinic open Monday to Saturday, 8am to 9pm</span></div></div>; }

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact | Serenova Clinic</title>
+  <meta name="description" content="Phone numbers, address, opening hours and a message form for Serenova Clinic.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>Emergency, 24 hours: <a class="emergency" href="tel:+924211100911">(042) 111-000-911</a></span>
+      <span class="topbar-hours">Clinic open Monday to Saturday, 8am to 9pm</span>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html" aria-label="Serenova Clinic, home">
+        <span class="logo-mark" aria-hidden="true">S</span>
+        <span class="logo-word">Serenova <span>Clinic</span></span>
+      </a>
+      <input type="checkbox" id="nav-toggle" class="nav-toggle">
+      <label for="nav-toggle" class="nav-btn">Menu</label>
+      <nav class="main-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="doctors.html">Doctors</a></li>
+          <li><a href="contact.html" aria-current="page">Contact</a></li>
+          <li><a href="login.html">Patient login</a></li>
+          <li class="nav-book"><a href="appointment.html">Book appointment</a></li>
+        </ul>
+      </nav>
+      <a class="btn btn-primary header-cta" href="appointment.html">Book appointment</a>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="page-hero">
+      <div class="container">
+        <h1>Contact us</h1>
+        <p class="lede">Call, write or visit. The care desk answers calls from 8am to 9pm, Monday to Saturday.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="split">
+
+          <div>
+            <dl class="contact-list">
+              <div>
+                <dt>Care desk</dt>
+                <dd><a href="tel:+924211100123">(042) 111-000-123</a></dd>
+              </div>
+              <div>
+                <dt>Emergency, 24 hours</dt>
+                <dd><a class="emergency" href="tel:+924211100911">(042) 111-000-911</a></dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd><a href="mailto:care@serenova-clinic.example">care@serenova-clinic.example</a></dd>
+              </div>
+              <div>
+                <dt>Address</dt>
+                <dd>14 Garden Avenue, Model Town, Lahore<br>Free parking behind the building</dd>
+              </div>
+            </dl>
+
+            <h2>Opening hours</h2>
+            <table class="table">
+              <tbody>
+                <tr><th scope="row">Monday to Saturday</th><td>8am to 9pm</td></tr>
+                <tr><th scope="row">Sunday</th><td>Closed</td></tr>
+                <tr><th scope="row">Emergency care</th><td>Open 24 hours, every day</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <form action="#" method="post">
+            <fieldset>
+              <legend>Send us a message</legend>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="contact-name">Your name <span class="req">required</span></label>
+                  <input type="text" id="contact-name" name="name" autocomplete="name" required>
+                </div>
+                <div class="field">
+                  <label for="contact-email">Email <span class="req">required</span></label>
+                  <input type="email" id="contact-email" name="email" autocomplete="email" placeholder="name@example.com" required>
+                </div>
+                <div class="field">
+                  <label for="contact-subject">Subject</label>
+                  <select id="contact-subject" name="subject">
+                    <option>General question</option>
+                    <option>Appointments</option>
+                    <option>Test results</option>
+                    <option>Billing and insurance</option>
+                    <option>Feedback</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="contact-message">Message <span class="req">required</span></label>
+                  <textarea id="contact-message" name="message" required></textarea>
+                  <p class="hint">Please do not send urgent medical problems here. Call the care desk or the emergency number.</p>
+                </div>
+                <div>
+                  <button class="btn btn-primary" type="submit">Send message</button>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+
+        </div>
+
+        <div class="map" role="img" aria-label="Map placeholder showing the clinic location">
+          <span class="pin" aria-hidden="true"></span>
+          <span class="map-label">14 Garden Avenue, Model Town</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h2>Serenova Clinic</h2>
+          <p>A multi-specialty clinic for families. Experienced doctors, clear answers and appointments that fit your week.</p>
+        </div>
+        <div>
+          <h2>Explore</h2>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="appointment.html">Book appointment</a></li>
+            <li><a href="login.html">Patient login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Visit us</h2>
+          <p>14 Garden Avenue<br>Model Town, Lahore</p>
+          <p>Monday to Saturday<br>8am to 9pm</p>
+        </div>
+        <div>
+          <h2>Emergency, 24 hours</h2>
+          <p><a class="emergency" href="tel:+924211100911">(042) 111-000-911</a></p>
+          <p>Care desk: <a href="tel:+924211100123">(042) 111-000-123</a></p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Serenova Clinic. A fictional clinic created for a web development course project.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

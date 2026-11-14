@@ -1,0 +1,27 @@
+{
+  "name": "serenova-client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.1",
+    "serenova-clinic": "file:.."
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^8.57.0",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.4.2",
+    "vite": "^6.0.7",
+    "vitest": "^2.1.8"
+  }
+}

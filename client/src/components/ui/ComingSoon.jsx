@@ -1,0 +1,1 @@
+export default function ComingSoon() { return <section className="section"><div className="container"><h1>Coming soon</h1><p className="lede">This part of the Serenova Clinic portal will arrive in a later phase.</p></div></section>; }
