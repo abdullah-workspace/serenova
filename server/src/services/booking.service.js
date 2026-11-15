@@ -97,7 +97,9 @@ export async function createAppointment(input) {
     visitType: input.visitType,
     reason: input.reason || '',
     consentAt: new Date(),
-    cancelTokenHash: hashToken(manageToken)
+    cancelTokenHash: hashToken(manageToken),
+    patientId: input.patientId || null,
+    createdBy: input.patientId ? 'patient' : 'guest'
   });
   try {
     await appointment.save();
@@ -105,6 +107,7 @@ export async function createAppointment(input) {
     if (error?.code === 11000) {
       throw new ApiError(409, 'SLOT_TAKEN', 'That time was just taken, please choose another.');
     }
+
     throw error;
   }
 
@@ -118,6 +121,54 @@ export async function createAppointment(input) {
   };
   void sendBookingConfirmation(result).catch((error) => logger.error(`Booking email failed: ${error.message}`));
   return result;
+}
+
+export async function getOwnedAppointment(id, patientId) {
+  const appointment = await Appointment.findOne({ _id: id, patientId })
+    .populate('doctorId', 'name initials specialty')
+    .populate('departmentId', 'name slug')
+    .lean();
+  if (!appointment) throw new ApiError(404, 'NOT_FOUND', 'Appointment not found');
+  return publicSummary(appointment);
+}
+
+export async function cancelOwnedAppointment(id, patientId, reason) {
+  const appointment = await Appointment.findOne({ _id: id, patientId })
+    .populate('doctorId', 'name initials specialty')
+    .populate('departmentId', 'name slug')
+    .lean();
+  if (!appointment) throw new ApiError(404, 'NOT_FOUND', 'Appointment not found');
+  ensureChangeAllowed(appointment);
+  const updated = await Appointment.findOneAndUpdate(
+    { _id: id, patientId, status: { $in: ['pending', 'confirmed'] } },
+    { $set: { status: 'cancelled', cancelReason: reason || '' } },
+    { new: true }
+  ).populate('doctorId', 'name initials specialty').populate('departmentId', 'name slug').lean();
+  if (!updated) throw new ApiError(409, 'TOO_LATE', 'This visit is too close to cancel online. Please call the clinic.');
+  return publicSummary(updated);
+}
+
+export async function rescheduleOwnedAppointment(id, patientId, newStartAt) {
+  const appointment = await Appointment.findOne({ _id: id, patientId })
+    .populate('doctorId', 'name initials specialty')
+    .populate('departmentId', 'name slug')
+    .lean();
+  if (!appointment) throw new ApiError(404, 'NOT_FOUND', 'Appointment not found');
+  ensureChangeAllowed(appointment);
+  const slot = await isSlotBookable(appointment.doctorId._id, newStartAt);
+  if (!slot) throw new ApiError(409, 'SLOT_UNAVAILABLE', 'That time is no longer available. Please choose another.');
+  try {
+    const updated = await Appointment.findOneAndUpdate(
+      { _id: id, patientId, status: { $in: ['pending', 'confirmed'] } },
+      { $set: { startAt: new Date(slot.startAt), endAt: new Date(slot.endAt) } },
+      { new: true }
+    ).populate('doctorId', 'name initials specialty').populate('departmentId', 'name slug').lean();
+    if (!updated) throw new ApiError(409, 'TOO_LATE', 'This visit is too close to cancel online.');
+    return publicSummary(updated);
+  } catch (error) {
+    if (error?.code === 11000) throw new ApiError(409, 'SLOT_TAKEN', 'That time was just taken, please choose another.');
+    throw error;
+  }
 }
 
 export async function lookupAppointment(reference, token) {

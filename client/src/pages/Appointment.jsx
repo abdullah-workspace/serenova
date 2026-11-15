@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createAppointment } from '../api/appointments.js';
 import { getDepartment } from '../api/departments.js';
+import { getDepartments } from '../api/departments.js';
 import { getDoctor, getDoctorSlots } from '../api/doctors.js';
 import { useFetch } from '../hooks/useFetch.js';
 import { usePageTitle } from '../hooks/usePageTitle.js';
@@ -10,7 +11,10 @@ import ErrorMessage from '../components/ui/ErrorMessage.jsx';
 import EmptyState from '../components/ui/EmptyState.jsx';
 import FormField from '../components/ui/FormField.jsx';
 import SlotChips from '../components/ui/SlotChips.jsx';
+import Notice from '../components/ui/Notice.jsx';
+import Toast from '../components/ui/Toast.jsx';
 import { clinicDateFromIso, dateAfter, todayInClinic } from '../utils/date.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function initialErrors() {
   return {};
@@ -19,6 +23,7 @@ function initialErrors() {
 export default function Appointment() {
   usePageTitle('Book appointment');
   const navigate = useNavigate();
+  const { user, patient } = useAuth();
   const [searchParams] = useSearchParams();
   const summaryRef = useRef(null);
   const prefillDoctor = searchParams.get('doctor') || '';
@@ -42,6 +47,18 @@ export default function Appointment() {
   const [reloadSlots, setReloadSlots] = useState(0);
 
   useEffect(() => {
+    if (user && patient) {
+      setForm((current) => ({
+        ...current,
+        fullName: current.fullName || patient.fullName || '',
+        phone: current.phone || patient.phone || '',
+        email: current.email || user.email || '',
+        dateOfBirth: current.dateOfBirth || patient.dateOfBirth || ''
+      }));
+    }
+  }, [user, patient]);
+
+  useEffect(() => {
     if (!departmentSlug && prefillDoctor) {
       getDoctor(prefillDoctor).then((doctor) => setDepartmentSlug(doctor.departmentId.slug)).catch(() => {});
     }
@@ -51,12 +68,14 @@ export default function Appointment() {
     () => departmentSlug ? getDepartment(departmentSlug) : Promise.resolve(null),
     [departmentSlug]
   );
+  const departmentsState = useFetch(getDepartments, []);
   const slotState = useFetch(
     () => doctorId && date ? getDoctorSlots(doctorId, date) : Promise.resolve(null),
     [doctorId, date, reloadSlots]
   );
   const doctors = departmentState.data?.doctors || [];
   const availableSlots = slotState.data?.slots || [];
+  const popupError = submitError || Object.values(errors)[0] || '';
 
   useEffect(() => {
     if (prefillSlot && availableSlots.some((item) => item.startAt === prefillSlot)) setSlot(prefillSlot);
@@ -116,6 +135,7 @@ export default function Appointment() {
 
   return (
     <>
+      <Toast message={popupError} onClose={() => { setSubmitError(''); setErrors({}); }} />
       <section className="page-hero"><div className="container">
         <h1>Book an appointment</h1>
         <p className="lede">Tell us what you need and when you are free. We will call you within one working day to confirm.</p>
@@ -129,6 +149,7 @@ export default function Appointment() {
               {submitError && <p>{submitError}</p>}
             </div>
           )}
+          {user && patient && <Notice>Booking as {patient.fullName}. You can still edit these details for this visit.</Notice>}
           <fieldset>
             <legend>Visit details</legend>
             <div className="form-grid">
@@ -142,7 +163,7 @@ export default function Appointment() {
                 </div>
               </div>
               <FormField id="department" label="Department" required error={errors.departmentId}>
-                {({ id, describedBy, invalid }) => <select id={id} value={departmentSlug} aria-describedby={describedBy} aria-invalid={invalid} onChange={(event) => { setDepartmentSlug(event.target.value); setDoctorId(''); setSlot(''); }} required><option value="">Choose a department</option>{departmentState.loading ? <option>Loading…</option> : departmentState.data && <option value={departmentState.data.slug}>{departmentState.data.name}</option>}</select>}
+                {({ id, describedBy, invalid }) => <select id={id} value={departmentSlug} aria-describedby={describedBy} aria-invalid={invalid} onChange={(event) => { setDepartmentSlug(event.target.value); setDoctorId(''); setSlot(''); }} required><option value="">Choose a department</option>{departmentsState.loading ? <option>Loading…</option> : departmentsState.data?.map((department) => <option value={department.slug} key={department._id}>{department.name}</option>)}</select>}
               </FormField>
               <FormField id="doctor" label="Preferred doctor" required error={errors.doctorId}>
                 {({ id, describedBy, invalid }) => <select id={id} value={doctorId} aria-describedby={describedBy} aria-invalid={invalid} onChange={(event) => { setDoctorId(event.target.value); setSlot(''); }} required><option value="">Choose a doctor</option>{doctors.map((doctor) => <option value={doctor._id} key={doctor._id}>{doctor.name}, {doctor.specialty}</option>)}</select>}

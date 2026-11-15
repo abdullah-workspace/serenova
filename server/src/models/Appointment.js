@@ -24,7 +24,7 @@ const appointmentSchema = new mongoose.Schema(
     consentAt: { type: Date, required: true },
     cancelReason: String,
     cancelTokenHash: { type: String, required: true, select: false },
-    createdBy: { type: String, enum: ['guest'], default: 'guest' },
+    createdBy: { type: String, enum: ['guest', 'patient'], default: 'guest' },
     notes: String
   },
   { timestamps: true }
@@ -35,6 +35,7 @@ appointmentSchema.index(
   { unique: true, partialFilterExpression: { status: { $in: ['pending', 'confirmed'] } } }
 );
 appointmentSchema.index({ status: 1, startAt: 1 });
+appointmentSchema.index({ patientId: 1, startAt: 1 });
 appointmentSchema.index({ 'guest.email': 1 });
 
 export const Appointment = mongoose.model('Appointment', appointmentSchema);

@@ -6,12 +6,16 @@ import { Doctor } from '../models/Doctor.js';
 import { Schedule } from '../models/Schedule.js';
 import { Appointment } from '../models/Appointment.js';
 import { ContactMessage } from '../models/ContactMessage.js';
+import { User } from '../models/User.js';
+import { Patient } from '../models/Patient.js';
+import { RefreshToken } from '../models/RefreshToken.js';
+import { PasswordReset } from '../models/PasswordReset.js';
 
 export async function connectDb() {
   try {
     await mongoose.connect(env.MONGODB_URI);
     if (env.NODE_ENV !== 'production') {
-      await Promise.all([Department, Doctor, Schedule, Appointment, ContactMessage].map((model) => model.syncIndexes()));
+      await Promise.all([Department, Doctor, Schedule, Appointment, ContactMessage, User, Patient, RefreshToken, PasswordReset].map((model) => model.syncIndexes()));
     }
     logger.info('MongoDB connected');
   } catch (error) {

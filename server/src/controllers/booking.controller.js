@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import * as booking from '../services/booking.service.js';
 import * as slots from '../services/slots.service.js';
 import { env } from '../config/env.js';
+import { Patient } from '../models/Patient.js';
 
 export const listSlots = asyncHandler(async (req, res) => {
   const result = await slots.getSlots(req.params.id, req.query.date);
@@ -20,7 +21,8 @@ export const availabilityToday = asyncHandler(async (req, res) => {
 });
 
 export const create = asyncHandler(async (req, res) => {
-  res.status(201).json({ data: await booking.createAppointment(req.body) });
+  const patient = req.user ? await Patient.findOne({ userId: req.user._id }).lean() : null;
+  res.status(201).json({ data: await booking.createAppointment({ ...req.body, patientId: patient?._id }) });
 });
 
 export const lookup = asyncHandler(async (req, res) => {

@@ -1,1 +1,1 @@
-﻿export { default } from '../components/ui/ComingSoon.jsx';
+import { Link } from 'react-router-dom'; import { usePageTitle } from '../hooks/usePageTitle.js'; export default function Forbidden() { usePageTitle('Access denied'); return <section className="section section--compact"><div className="container"><h1>You cannot open this page</h1><p>This area is not available for your account.</p><Link className="btn btn-primary" to="/">Return home</Link></div></section>; }

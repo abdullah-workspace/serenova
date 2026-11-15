@@ -4,3 +4,5 @@ dist/
 coverage/
 mongo_data/
 server/tmp/emails/
+# Temporary email files
+server/server/tmp/emails/

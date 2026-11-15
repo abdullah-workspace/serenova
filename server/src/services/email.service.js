@@ -67,3 +67,14 @@ export async function sendContactReceived(message) {
   const html = `<main><h1>Message received</h1><p>Thank you for contacting ${env.CLINIC_NAME}. We received your message about "${message.subject}".</p><p>Emergency, 24 hours: (042) 111-000-911</p></main>`;
   await send({ to: message.email, subject: `${env.CLINIC_NAME}: message received`, text, html });
 }
+
+export async function sendWelcomeEmail({ email, fullName }) {
+  const html = `<main><h1>Welcome to ${env.CLINIC_NAME}</h1><p>Hello ${fullName}, your account is ready.</p></main>`;
+  await send({ to: email, subject: `Welcome to ${env.CLINIC_NAME}`, text: `Welcome, ${fullName}!`, html });
+}
+
+export async function sendPasswordResetEmail({ email, token }) {
+  const link = `${env.CLIENT_URL}/reset-password/${encodeURIComponent(token)}`;
+  const html = `<main><h1>Password reset</h1><p><a href="${link}">Reset your password</a>. This link expires in one hour.</p></main>`;
+  await send({ to: email, subject: `${env.CLINIC_NAME}: password reset`, text: `Reset your password: ${link}`, html });
+}

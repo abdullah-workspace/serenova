@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../middleware/validate.js';
 import { routeRateLimit } from '../middleware/rateLimit.js';
 import * as controller from '../controllers/booking.controller.js';
+import { optionalAuth } from '../middleware/auth.js';
 import {
   cancel,
   createAppointment,
@@ -12,7 +13,7 @@ import {
 const router = Router();
 const hour = 60 * 60 * 1000;
 
-router.post('/', routeRateLimit(hour, 10), validate(createAppointment, 'body'), controller.create);
+router.post('/', optionalAuth, routeRateLimit(hour, 10), validate(createAppointment, 'body'), controller.create);
 router.get('/lookup', routeRateLimit(hour, 30), validate(lookup, 'query'), controller.lookup);
 router.patch(
   '/:reference/cancel',
