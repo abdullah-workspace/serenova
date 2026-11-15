@@ -10,12 +10,14 @@ import { User } from '../models/User.js';
 import { Patient } from '../models/Patient.js';
 import { RefreshToken } from '../models/RefreshToken.js';
 import { PasswordReset } from '../models/PasswordReset.js';
+import { AuditLog } from '../models/AuditLog.js';
+import { Setting } from '../models/Setting.js';
 
 export async function connectDb() {
   try {
     await mongoose.connect(env.MONGODB_URI);
     if (env.NODE_ENV !== 'production') {
-      await Promise.all([Department, Doctor, Schedule, Appointment, ContactMessage, User, Patient, RefreshToken, PasswordReset].map((model) => model.syncIndexes()));
+      await Promise.all([Department, Doctor, Schedule, Appointment, ContactMessage, User, Patient, RefreshToken, PasswordReset, AuditLog, Setting].map((model) => model.syncIndexes()));
     }
     logger.info('MongoDB connected');
   } catch (error) {

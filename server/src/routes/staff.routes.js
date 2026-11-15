@@ -1,1 +1,15 @@
-﻿// Phase 2: routes
+import { Router } from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { requireRole } from '../middleware/roles.js';
+import { validate } from '../middleware/validate.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import * as v from '../validators/staff.js';
+import * as controller from '../controllers/staff.controller.js';
+const router = Router();
+router.use(requireAuth, requireRole('receptionist', 'admin'));
+router.get('/summary', asyncHandler(controller.summary));
+router.get('/appointments', validate(v.query), asyncHandler(controller.list));
+router.patch('/appointments/:id', validate(v.id, 'params'), validate(v.update, 'body'), asyncHandler(controller.update));
+router.get('/messages', asyncHandler(controller.messages));
+router.get('/patients', asyncHandler(controller.patients));
+export default router;

@@ -1,0 +1,2 @@
+import { useSearchParams } from 'react-router-dom';
+export default function FilterBar({ children }) { const [params, setParams] = useSearchParams(); return <form className="filter-bar" onSubmit={(event) => { event.preventDefault(); const data = new FormData(event.currentTarget); const next = new URLSearchParams(params); for (const [key, value] of data) value ? next.set(key, value) : next.delete(key); next.delete('page'); setParams(next); }}>{children}<button className="btn btn-primary">Filter</button></form>; }

@@ -1,0 +1,2 @@
+import { useEffect, useRef } from 'react';
+export default function ConfirmDialog({ open, title, children, onConfirm, onClose }) { const ref = useRef(null); useEffect(() => { if (open) ref.current?.showModal(); else if (ref.current?.open) ref.current.close(); }, [open]); return <dialog ref={ref} onClose={onClose}><h2>{title}</h2><p>{children}</p><div className="button-row"><button type="button" onClick={onClose}>Cancel</button><button type="button" className="btn btn-primary" onClick={onConfirm}>Confirm</button></div></dialog>; }

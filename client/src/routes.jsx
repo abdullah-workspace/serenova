@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout.jsx';
-import ComingSoon from './components/ui/ComingSoon.jsx';
 import NotFound from './pages/NotFound.jsx';
 import Home from './pages/Home.jsx';
 import About from './pages/About.jsx';
@@ -24,17 +23,28 @@ import Dashboard from './pages/portal/Dashboard.jsx';
 import PortalAppointments from './pages/portal/Appointments.jsx';
 import AppointmentDetail from './pages/portal/AppointmentDetail.jsx';
 import Profile from './pages/portal/Profile.jsx';
-
-const futureRoutes = [
-  '/privacy', '/terms', '/verify-email/:token', '/portal/results',
-  '/portal/results/:id', '/portal/prescriptions', '/portal/bills', '/portal/family', '/doctor',
-  '/doctor/appointments', '/doctor/appointments/:id', '/doctor/patients/:id', '/doctor/schedule',
-  '/staff', '/staff/appointments', '/staff/appointments/new', '/staff/appointments/:id', '/staff/messages',
-  '/staff/messages/:id', '/staff/patients', '/staff/patients/:id', '/staff/bills', '/admin',
-  '/admin/doctors', '/admin/doctors/new', '/admin/doctors/:id', '/admin/doctors/:id/schedule',
-  '/admin/departments', '/admin/users', '/admin/audit-log', '/admin/settings', '/error'
-];
+import DashboardLayout from './components/dashboards/DashboardLayout.jsx';
+import DoctorDashboard from './pages/doctor/Dashboard.jsx';
+import DoctorAppointments from './pages/doctor/Appointments.jsx';
+import DoctorAppointmentDetail from './pages/doctor/AppointmentDetail.jsx';
+import DoctorSchedule from './pages/doctor/Schedule.jsx';
+import StaffDashboard from './pages/staff/Dashboard.jsx';
+import StaffAppointments from './pages/staff/Appointments.jsx';
+import StaffMessages from './pages/staff/Messages.jsx';
+import StaffPatients from './pages/staff/Patients.jsx';
+import WalkIn from './pages/staff/WalkIn.jsx';
+import AdminDashboard from './pages/admin/Dashboard.jsx';
+import AdminDoctors from './pages/admin/Doctors.jsx';
+import AdminUsers from './pages/admin/Users.jsx';
+import AdminSettings from './pages/admin/Settings.jsx';
+import CreateUser from './pages/admin/CreateUser.jsx';
+import CreateDoctor from './pages/admin/CreateDoctor.jsx';
+import DashboardPlaceholder from './pages/DashboardPlaceholder.jsx';
 
 export default function AppRoutes() {
-  return <Routes><Route element={<Layout />}><Route index element={<Home />} /><Route path="about" element={<About />} /><Route path="services" element={<Services />} /><Route path="services/:slug" element={<ServiceDetail />} /><Route path="doctors" element={<Doctors />} /><Route path="doctors/:id" element={<DoctorProfile />} /><Route path="appointment" element={<Appointment />} /><Route path="appointment/confirmed/:reference" element={<BookingConfirmed />} /><Route path="appointment/manage" element={<ManageBooking />} /><Route path="contact" element={<Contact />} /><Route path="login" element={<Login />} /><Route path="register" element={<Register />} /><Route path="forgot-password" element={<ForgotPassword />} /><Route path="reset-password/:token" element={<ResetPassword />} /><Route path="forbidden" element={<Forbidden />} /><Route element={<RequireAuth><RequireRole roles={['patient']}><PortalLayout /></RequireRole></RequireAuth>}><Route path="portal" element={<Dashboard />} /><Route path="portal/appointments" element={<PortalAppointments />} /><Route path="portal/appointments/:id" element={<AppointmentDetail />} /><Route path="portal/profile" element={<Profile />} /></Route>{futureRoutes.map((path) => <Route key={path} path={path} element={<ComingSoon />} />)}<Route path="*" element={<NotFound />} /></Route></Routes>;
+  return <Routes><Route element={<Layout />}><Route index element={<Home />} /><Route path="about" element={<About />} /><Route path="services" element={<Services />} /><Route path="services/:slug" element={<ServiceDetail />} /><Route path="doctors" element={<Doctors />} /><Route path="doctors/:id" element={<DoctorProfile />} /><Route path="appointment" element={<Appointment />} /><Route path="appointment/confirmed/:reference" element={<BookingConfirmed />} /><Route path="appointment/manage" element={<ManageBooking />} /><Route path="contact" element={<Contact />} /><Route path="login" element={<Login />} /><Route path="register" element={<Register />} /><Route path="forgot-password" element={<ForgotPassword />} /><Route path="reset-password/:token" element={<ResetPassword />} /><Route path="forbidden" element={<Forbidden />} /><Route element={<RequireAuth><RequireRole roles={['patient']}><PortalLayout /></RequireRole></RequireAuth>}><Route path="portal" element={<Dashboard />} /><Route path="portal/appointments" element={<PortalAppointments />} /><Route path="portal/appointments/:id" element={<AppointmentDetail />} /><Route path="portal/profile" element={<Profile />} /></Route>
+    <Route element={<RequireAuth><RequireRole roles={['doctor']}><DashboardLayout role="doctor" title="Doctor dashboard" links={[['/doctor', 'Overview'], ['/doctor/appointments', 'Appointments'], ['/doctor/schedule', 'My schedule']]} /></RequireRole></RequireAuth>}><Route path="doctor" element={<DoctorDashboard />} /><Route path="doctor/appointments" element={<DoctorAppointments />} /><Route path="doctor/appointments/:id" element={<DoctorAppointmentDetail />} /><Route path="doctor/schedule" element={<DoctorSchedule />} /><Route path="doctor/patients/:id" element={<DashboardPlaceholder title="Patient record" />} /></Route>
+    <Route element={<RequireAuth><RequireRole roles={['receptionist', 'admin']}><DashboardLayout role="receptionist" title="Reception" links={[['/staff', 'Overview'], ['/staff/appointments', 'Appointments'], ['/staff/patients', 'Patients'], ['/staff/messages', 'Messages']]} /></RequireRole></RequireAuth>}><Route path="staff" element={<StaffDashboard />} /><Route path="staff/appointments" element={<StaffAppointments />} /><Route path="staff/appointments/new" element={<WalkIn />} /><Route path="staff/appointments/:id" element={<DashboardPlaceholder title="Appointment detail" />} /><Route path="staff/messages" element={<StaffMessages />} /><Route path="staff/messages/:id" element={<DashboardPlaceholder title="Message detail" />} /><Route path="staff/patients" element={<StaffPatients />} /><Route path="staff/patients/:id" element={<DashboardPlaceholder title="Patient record" />} /></Route>
+    <Route element={<RequireAuth><RequireRole roles={['admin']}><DashboardLayout role="admin" title="Administration" links={[['/admin', 'Overview'], ['/admin/doctors', 'Doctors'], ['/admin/users', 'Users'], ['/admin/settings', 'Settings']]} /></RequireRole></RequireAuth>}><Route path="admin" element={<AdminDashboard />} /><Route path="admin/doctors" element={<AdminDoctors />} /><Route path="admin/doctors/new" element={<CreateDoctor />} /><Route path="admin/doctors/:id" element={<DashboardPlaceholder title="Doctor details" />} /><Route path="admin/doctors/:id/schedule" element={<DashboardPlaceholder title="Edit schedule" />} /><Route path="admin/departments" element={<DashboardPlaceholder title="Departments" />} /><Route path="admin/users" element={<AdminUsers />} /><Route path="admin/users/new" element={<CreateUser />} /><Route path="admin/audit-log" element={<DashboardPlaceholder title="Audit log" />} /><Route path="admin/settings" element={<AdminSettings />} /></Route>
+    <Route path="*" element={<NotFound />} /></Route></Routes>;
 }

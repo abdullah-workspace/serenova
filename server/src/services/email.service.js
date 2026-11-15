@@ -4,8 +4,9 @@ import nodemailer from 'nodemailer';
 import { DateTime } from 'luxon';
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
+import { fileURLToPath } from 'node:url';
 
-const emailDir = path.resolve('server/tmp/emails');
+const emailDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../tmp/emails');
 
 function visitText(appointment) {
   const start = DateTime.fromJSDate(new Date(appointment.startAt))

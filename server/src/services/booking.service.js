@@ -13,6 +13,7 @@ import {
   sendCancellation,
   sendReschedule
 } from './email.service.js';
+import { getSettings } from './settings.service.js';
 
 function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
@@ -61,11 +62,12 @@ async function findWithToken(reference, token) {
   return appointment;
 }
 
-function ensureChangeAllowed(appointment) {
+async function ensureChangeAllowed(appointment) {
   if (!['pending', 'confirmed'].includes(appointment.status)) {
     throw new ApiError(409, 'TOO_LATE', 'This visit is too close to cancel online. Please call the clinic.');
   }
-  if (DateTime.fromJSDate(appointment.startAt).toUTC() <= DateTime.utc().plus({ hours: env.CANCEL_CUTOFF_HOURS })) {
+  const runtime = await getSettings();
+  if (DateTime.fromJSDate(appointment.startAt).toUTC() <= DateTime.utc().plus({ hours: Number(runtime.cancelCutoffHours ?? env.CANCEL_CUTOFF_HOURS) })) {
     throw new ApiError(409, 'TOO_LATE', 'This visit is too close to cancel online. Please call the clinic.');
   }
 }
@@ -138,7 +140,7 @@ export async function cancelOwnedAppointment(id, patientId, reason) {
     .populate('departmentId', 'name slug')
     .lean();
   if (!appointment) throw new ApiError(404, 'NOT_FOUND', 'Appointment not found');
-  ensureChangeAllowed(appointment);
+  await ensureChangeAllowed(appointment);
   const updated = await Appointment.findOneAndUpdate(
     { _id: id, patientId, status: { $in: ['pending', 'confirmed'] } },
     { $set: { status: 'cancelled', cancelReason: reason || '' } },
@@ -154,7 +156,7 @@ export async function rescheduleOwnedAppointment(id, patientId, newStartAt) {
     .populate('departmentId', 'name slug')
     .lean();
   if (!appointment) throw new ApiError(404, 'NOT_FOUND', 'Appointment not found');
-  ensureChangeAllowed(appointment);
+  await ensureChangeAllowed(appointment);
   const slot = await isSlotBookable(appointment.doctorId._id, newStartAt);
   if (!slot) throw new ApiError(409, 'SLOT_UNAVAILABLE', 'That time is no longer available. Please choose another.');
   try {
@@ -177,7 +179,7 @@ export async function lookupAppointment(reference, token) {
 
 export async function cancelAppointment(reference, token, reason) {
   const appointment = await findWithToken(reference, token);
-  ensureChangeAllowed(appointment);
+  await ensureChangeAllowed(appointment);
   const updated = await Appointment.findOneAndUpdate(
     { reference, status: { $in: ['pending', 'confirmed'] } },
     { $set: { status: 'cancelled', cancelReason: reason || '' } },
@@ -194,7 +196,7 @@ export async function cancelAppointment(reference, token, reason) {
 
 export async function rescheduleAppointment(reference, token, newStartAt) {
   const appointment = await findWithToken(reference, token);
-  ensureChangeAllowed(appointment);
+  await ensureChangeAllowed(appointment);
   const slot = await isSlotBookable(appointment.doctorId._id, newStartAt);
   if (!slot) throw new ApiError(409, 'SLOT_UNAVAILABLE', 'That time is no longer available. Please choose another.');
   try {

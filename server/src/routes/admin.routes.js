@@ -1,1 +1,17 @@
-﻿// Phase 2: routes
+import { Router } from 'express';
+import { requireAuth } from '../middleware/auth.js';
+import { requireRole } from '../middleware/roles.js';
+import { validate } from '../middleware/validate.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import * as v from '../validators/admin.js';
+import * as controller from '../controllers/admin.controller.js';
+const router = Router();
+router.use(requireAuth, requireRole('admin'));
+router.get('/reports', validate(v.report), asyncHandler(controller.report));
+router.get('/settings', asyncHandler(controller.getSettings));
+router.patch('/settings', validate(v.settings, 'body'), asyncHandler(controller.updateSettings));
+router.get('/:resource', validate(v.resource, 'params'), asyncHandler(controller.list));
+router.post('/:resource', validate(v.resource, 'params'), asyncHandler(controller.create));
+router.patch('/:resource/:id', validate(v.id, 'params'), asyncHandler(controller.update));
+router.delete('/:resource/:id', validate(v.id, 'params'), asyncHandler(controller.remove));
+export default router;

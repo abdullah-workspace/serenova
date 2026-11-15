@@ -3,21 +3,23 @@ import { Appointment } from '../models/Appointment.js';
 import { Doctor } from '../models/Doctor.js';
 import { ApiError } from '../utils/ApiError.js';
 import { env } from '../config/env.js';
+import { getSettings } from './settings.service.js';
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
-function clinicDate(dateString) {
+async function clinicDate(dateString) {
   if (!datePattern.test(dateString)) {
     throw new ApiError(400, 'INVALID_DATE', 'Enter a date in YYYY-MM-DD format');
   }
-  const date = DateTime.fromISO(dateString, { zone: env.CLINIC_TIMEZONE });
+  const runtime = await getSettings();
+  const date = DateTime.fromISO(dateString, { zone: runtime.clinicTimezone || env.CLINIC_TIMEZONE });
   if (!date.isValid || date.toISODate() !== dateString) {
     throw new ApiError(400, 'INVALID_DATE', 'Enter a valid date');
   }
-  const today = DateTime.now().setZone(env.CLINIC_TIMEZONE).startOf('day');
+  const today = DateTime.now().setZone(runtime.clinicTimezone || env.CLINIC_TIMEZONE).startOf('day');
   if (date < today) throw new ApiError(400, 'PAST_DATE', 'Choose a future date');
-  if (date > today.plus({ days: env.BOOKING_MAX_DAYS_AHEAD })) {
-    throw new ApiError(400, 'DATE_TOO_FAR', `Choose a date within ${env.BOOKING_MAX_DAYS_AHEAD} days`);
+  if (date > today.plus({ days: Number(runtime.bookingMaxDaysAhead ?? env.BOOKING_MAX_DAYS_AHEAD) })) {
+    throw new ApiError(400, 'DATE_TOO_FAR', `Choose a date within ${runtime.bookingMaxDaysAhead ?? env.BOOKING_MAX_DAYS_AHEAD} days`);
   }
   return date;
 }
@@ -31,7 +33,8 @@ function isWithinBreak(time, breaks = []) {
 }
 
 export async function getSlots(doctorId, dateString) {
-  const date = clinicDate(dateString);
+  const runtime = await getSettings();
+  const date = await clinicDate(dateString);
   const doctor = await Doctor.findOne({ _id: doctorId, isActive: true }).lean();
   if (!doctor) throw new ApiError(404, 'DOCTOR_NOT_FOUND', 'Doctor not found');
   const schedule = await doctorSchedule(doctorId);
@@ -43,7 +46,7 @@ export async function getSlots(doctorId, dateString) {
   const step = doctor.slotMinutes || 30;
   let cursor = localDateTime(date, weekly.start);
   const finish = localDateTime(date, weekly.end);
-  const nowWithNotice = DateTime.utc().plus({ hours: env.MIN_NOTICE_HOURS });
+  const nowWithNotice = DateTime.utc().plus({ hours: Number(runtime.minNoticeHours ?? env.MIN_NOTICE_HOURS) });
   while (cursor.plus({ minutes: step }) <= finish) {
     const label = cursor.toFormat('HH:mm');
     const slotEnd = cursor.plus({ minutes: step });
@@ -73,7 +76,8 @@ async function doctorSchedule(doctorId) {
 export async function isSlotBookable(doctorId, startAt) {
   const instant = DateTime.fromISO(startAt, { setZone: true });
   if (!instant.isValid || !instant.isOffsetFixed) return false;
-  const clinicDateString = instant.setZone(env.CLINIC_TIMEZONE).toISODate();
+  const runtime = await getSettings();
+  const clinicDateString = instant.setZone(runtime.clinicTimezone || env.CLINIC_TIMEZONE).toISODate();
   const slots = await getSlots(doctorId, clinicDateString);
   return slots.find((slot) => slot.startAt === instant.toUTC().toISO()) || false;
 }
